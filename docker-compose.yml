@@ -1,0 +1,28 @@
+services:
+
+  wa-gateway:
+    image: wa-gateway
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    env_file:
+      - .env.docker
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - whatsapp_auth:/app/.wwebjs_auth
+
+    restart: unless-stopped
+
+    networks:
+      - inventory-network
+
+networks:
+  inventory-network:
+    external: true
+
+volumes:
+  whatsapp_auth:

@@ -26,6 +26,13 @@ const client = new Client({
     authStrategy: new LocalAuth({
         dataPath: './.wwebjs_auth',
     }),
+    puppeteer: {
+        headless: true,
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+        ],
+    },
 });
 
 let whatsappReady = false;
@@ -108,8 +115,22 @@ app.post('/api/messages', authenticate, async (req, res) => {
     }
 });
 
-client.initialize();
+client.initialize().catch((error) => {
+    console.error('Initialization failed:', error);
+});
 
 app.listen(PORT, () => {
     console.log(`WhatsApp Gateway listening on port ${PORT}`);
+});
+client.on('loading_screen', (percent, message) => {
+    console.log('Loading:', percent, message);
+});
+
+client.on('change_state', (state) => {
+    console.log('WhatsApp state:', state);
+});
+
+client.on('disconnected', (reason) => {
+    whatsappReady = false;
+    console.log('WhatsApp disconnected:', reason);
 });
